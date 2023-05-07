@@ -1,0 +1,280 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<CadetTest.Controllers.HomeController.cont>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+        #tableContent {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 75%;
+        }
+
+            #tableContent td, #tableContent th {
+                border: 3px solid #ddd;
+                padding: 8px;
+            }
+
+            #tableContent tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            #tableContent tr:hover {
+                background-color: #ddd;
+            }
+
+            #tableContent th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                background-color: #e4eb32;
+                color: white;
+            }
+    </style>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#buttonInsert").click(function () {
+
+                var type = $("#Type").val();
+                var recipient = $("#Recipient").val();
+                var status = $("#Status").val();
+                var recipienttype = $("#RecipientType").val();
+
+                $.ajax({
+                    url: '/Home/ProcessesPartial?Process=Insert&Type=' + type + '&Recipient=' + recipient + '&Status=' + status + '&RecipientType=' + recipienttype + '&Id=0',
+                    type: 'GET',
+                    dataType: 'html'
+                })
+
+                    .done(function (result) {
+
+                        $('#divTable').html(result);
+                    })
+                    .fail(function (xhr, status) {
+                        alert("hata");
+                    })
+
+
+            });
+
+            $("#buttonEditModal").click(function () {
+
+                var id = $("#Id").val();
+                var type = $("#TypeEdit").val();
+                var recipient = $("#RecipientEdit").val();
+                var status = $("#StatusEdit").val();
+                var recipienttype = $("#RecipientTypeEdit").val();
+
+                $.ajax({
+                    url: '/Home/ProcessesPartial?Process=Edit&Type=' + type + '&Recipient=' + recipient + '&Status=' + status + '&RecipientType=' + recipienttype + '&Id=' + id + '',
+                    type: 'GET',
+                    dataType: 'html'
+                })
+
+                    .done(function (result) {
+
+                        $('#divTable').html(result);
+                    })
+                    .fail(function (xhr, status) {
+                        alert("hata");
+                    })
+
+
+            });
+
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+        function GetDetailContent(id) {
+
+            $.ajax({
+                type: 'GET',
+                url: '/Home/GetDetailContent?id=' + id + '',
+                dataType: 'text',
+                success: function (result) {
+                    var arry = result.split('~');
+
+                    var Id = arry[0];
+                    var Type = arry[1];
+                    var Recipient = arry[2];
+                    var Status = arry[3];
+                    var RecipientType = arry[4];
+
+                    $("#Id").val(Id);
+                    $("#TypeEdit").val(Type);
+                    $("#RecipientEdit").val(Recipient);
+                    $("#StatusEdit").val(Status);
+                    $("#RecipientTypeEdit").val(RecipientType);
+
+                },
+                error: function () {
+                    alert("hata");
+                }
+            });
+        }
+
+        function DeleteContent(id) {
+
+            $.ajax({
+                url: '/Home/ProcessesPartial?Process=Delete&Type=' + id + '&Recipient=' + id + '&Status=' + id + '&RecipientType=' + id + '&Id=' + id + '',
+                type: 'GET',
+                dataType: 'html'
+            })
+
+                .done(function (result) {
+
+                    $('#divTable').html(result);
+                })
+                .fail(function (xhr, status) {
+                    alert("hata");
+                })
+
+
+        }
+
+    </script>
+
+</head>
+
+
+
+<body>
+
+
+
+    <center>
+        <div id="divTable">
+
+            <center><h2>İçerik Tablosu</h2></center>
+            <br />
+            <center><button type="button" style="color:cornflowerblue; width:150px; height:50px" data-toggle="modal" data-target="#InsertRecord"><b>Yeni Kayıt Ekle</b></button></center>
+            <br />
+
+
+            <table id="tableContent">
+                <tr>
+                    <th>Id</th>
+                    <th>Type</th>
+                    <th>Recipient</th>
+                    <th>Status</th>
+                    <th>RecipientType</th>
+                    <th>İşlemler</th>
+                </tr>
+                @for (int i = 0; i < Model.Count; i += 10)
+                {
+                    bool isTen = true;
+                    if (Model.Skip(i).Take(10).Count() != 10)
+                    {
+                        isTen = false;
+                    }
+                    @foreach (var content in Model.Skip(i).Take(10))
+                    {
+                        <tr>
+                            <td>@content.id</td>
+                            <td>@content.type</td>
+                            <td>@content.recipient</td>
+                            <td>@content.status</td>
+                            <td>@content.recipientType</td>
+                            <td><button id="buttonEdit" style="color:darkgreen" data-toggle="modal" data-target="#EditRecord" onclick="GetDetailContent(@content.id)">Düzenle</button>&nbsp;&nbsp;&nbsp;&nbsp;<button id="buttonDelete" style="color:red" onclick="DeleteContent(@content.id)">Kaydı Sil</button></td>
+                        </tr>
+                    }
+                    if (isTen == true)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Saat: @DateTime.Now.ToString()</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </div>
+    </center>
+
+
+    <div class="modal fade" id="InsertRecord" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Kayıt Ekleme</h4>
+                </div>
+                <div class="modal-body">
+                    <label><b>Type</b></label><br />
+                    <input id="Type" name="Type" type="text" placeholder="Type.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>Recipient</b></label><br />
+                    <input id="Recipient" name="Recipient" type="text" placeholder="Recipient.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>Status</b></label><br />
+                    <input id="Status" name="Status" type="text" placeholder="Status.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>RecipientType</b></label><br />
+                    <input id="RecipientType" name="RecipientType" type="text" placeholder="RecipientType.." />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                    <button type="submit" id="buttonInsert" name="buttonInsert" class="btn btn-primary">Kaydet</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="EditRecord" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Kayıt Düzenleme</h4>
+                </div>
+                <div class="modal-body">
+                    <label><b>Id</b></label><br />
+                    <input id="Id" name="Id" type="text" placeholder="Type.." readonly />
+                </div>
+                <div class="modal-body">
+                    <label><b>Type</b></label><br />
+                    <input id="TypeEdit" name="Type" type="text" placeholder="Type.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>Recipient</b></label><br />
+                    <input id="RecipientEdit" name="Recipient" type="text" placeholder="Recipient.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>Status</b></label><br />
+                    <input id="StatusEdit" name="Status" type="text" placeholder="Status.." />
+                </div>
+                <div class="modal-body">
+                    <label><b>RecipientType</b></label><br />
+                    <input id="RecipientTypeEdit" name="RecipientType" type="text" placeholder="RecipientType.." />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                    <button type="submit" id="buttonEditModal" name="buttonEditModal" class="btn btn-primary">Kaydet</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
