@@ -96,6 +96,8 @@ namespace CadetTest.Controllers
 
             #endregion
 
+            // desk deneme.
+
             HttpContext.Session.SetString("sessionList", "");
 
             serviceResponseCont = serviceResponseCont.OrderByDescending(x => x.id).ToList();
